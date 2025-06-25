@@ -2,10 +2,12 @@ using UnityEngine;
 
 public class CatapultScript : MonoBehaviour
 {
+    public Transform turret;
     public Transform shootPoint;
     public Rigidbody ammoBody;
     public Vector3 launchDirection = new Vector3(0, 1, 1);
     public float launchForce = 10f;
+    public float rotationSpeed = 100f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -23,17 +25,27 @@ public class CatapultScript : MonoBehaviour
         {
             ResetCatapult();
         }
+        HandleRotation();
     }
 
     void Launch()
     {
         ammoBody.isKinematic = false;
-        ammoBody.AddForce(launchDirection * launchForce, ForceMode.Impulse);
+        ammoBody.transform.parent = null;
+        launchDirection = turret.forward + Vector3.up;
+        ammoBody.AddForce(launchDirection.normalized * launchForce, ForceMode.Impulse);
     }
 
     void ResetCatapult()
     {
         ammoBody.isKinematic = true;
+        ammoBody.transform.parent = shootPoint;
         ammoBody.transform.position = shootPoint.position;
+    }
+
+    void HandleRotation()
+    {
+        float rotationInput = Input.GetAxis("Horizontal");
+        turret.Rotate(Vector3.up * rotationInput * rotationSpeed * Time.deltaTime);
     }
 }
